@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TouchTrack</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:wght@400;900&family=Playfair+Display:wght@700&family=Raleway:wght@300;400;700;900&family=Roboto:wght@400;700;900&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+    <div id="preolader-circle" style="display: none;">
+        <div class="preloader-circle">
+            <span class="loader-circle"></span>
+        </div>
+    </div>   
+    <section class="login-center">
+        <main class="login">
+            <div class="login__container">
+                <div class="login__logo">  
+                    <img src="/assets/images/touchtrack.png" alt="">
+                </div>
+                <div class="login__form-container">
+                    <form class="form" method="POST" id="form-login">
+                        <div class="form__image-container">
+                            <picture class="form__picture">
+                                <source srcset="/assets/images/user.png" type="image/webp">
+                                <img class="form__image" loading="lazy" width="200" height="300" src="/assets/images/user.png" alt="Imagen de usuario">
+                            </picture>
+                            <h3 class="form__welcome">Bienvenido/a</h3>
+                        </div>
+                        <div class="form__data-container">
+                            <div class="form-input">
+                                <i class="fa-solid fa-envelope"></i>
+                                <input type="text" name="username" placeholder="Usuario">
+                            </div>
+                            <div class="form-input">
+                                <i class="fa-solid fa-lock"></i>
+                                <input type="password" name="password" placeholder="Contraseña">
+                            </div>
+                            <button class="btn form__submit" type="submit"><span>Iniciar sesión</span></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </section>
+    <script>
+        var logged = 0;
+    </script>
+    <script src="/assets/js/jquery-3.7.0.min.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script>
+        var btnSubmit = $("#form-login button[type='submit']").html();
+        $("#form-login").on("submit", function(e){
+            e.preventDefault();
+            var btn = $(this).find("button[type='submit']");
+            
+            api_loadloader(btn.find("span"), $("#preolader-circle").html(), btn, true, 100, 400);        
+
+            var formData = new FormData(this);
+            formData.append("action", "login")
+            
+            var response = api_sendData({url: "data/auth", type: "POST", formData: formData});
+            setTimeout(function(){
+                response.then(function (response) {
+                    if(!response.success){
+                        api_loadloader(btn.find("span"), btnSubmit, btn, false, 400, 400);
+                        $("#form-login").find(".form__data-container").prepend(api_alert({text: response.msg}));
+                        return;
+                    }            
+                    
+                    $("#form-login").find(".form__data-container").prepend(api_alert({type: "primary", title: "¡Exito!", text: response.msg}));
+                    setTimeout(function(){    
+                        location.reload();
+                    }, 2000);
+                    return;
+                }).catch(function (response) {
+                    api_loadloader(btn.find("span"), btnSubmit, btn, false, 400, 400);
+                    $("#form-login").find(".form__data-container").prepend(api_alert({text: response.responseJSON.msg}));
+                    return;
+                });
+            }, 1000);
+        }); 
+    </script>
+</body>
+</html>

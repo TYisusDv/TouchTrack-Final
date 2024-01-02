@@ -1,0 +1,120 @@
+<div class="d-flex flex-direction-column w-100 align-items-center"> 
+    <div class="d-flex-w-60 g-20 no-wrap justify-content-space-between align-items-baseline">
+        <h1 class="mb-20px">Administración de eventos</h1>
+        <ul class="web-routes">
+            <li>Administrar</li>
+            <li>/</li>
+            <li>Evento</li>
+            <li>/</li>
+            <li>Editar</li>
+        </ul>
+    </div>
+    <div class="d-flex-w-60 mt-20px"> 
+        <div class="card">
+            <div class="head">
+                <h1>Editar</h1>
+            </div>
+            <form id="form-edit" autocomplete="off"> 
+                <div class="body">
+                    <div class="form-input mb-20px">
+                        <i class="fa-solid fa-font"></i>
+                        <input type="text" name="name" placeholder="Nombre" value="{{item.name}}">
+                    </div>
+                    <label for="" class="w-100 fw-bold">Fecha entrada</label>
+                    <div class="form-input mb-20px">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <input type="datetime-local" name="date_start" placeholder="Fecha entrada" value="{{item.date_start|datelocal_format}}">
+                    </div>
+                    <label for="" class="w-100 fw-bold">Fecha salida</label>
+                    <div class="form-input">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <input type="datetime-local" name="date_final" placeholder="Fecha salida" value="{{item.date_final|datelocal_format}}">
+                    </div>
+                    <div class="form-input">
+                        <i class="fa-solid fa-building-columns"></i>
+                        <select name="career_semester" multiple="multiple">
+                            {% for semester in semesters %}
+                            {% for career in careers %}
+                            <option value='{"career_id": "{{career._id}}", "semester_id": {{semester._id}}}'>{{career.name}} de {{semester.name|lower}}</option>
+                            {% endfor %}
+                            {% endfor %}
+                        </select>          
+                    </div>                                          
+                </div>
+                <div class="footer">
+                    <button type="submit" class="btn bg-outline-primary"><span><i class="fa-solid fa-save"></i> Guardar</span></button>
+                </div>
+            </form> 
+        </div>
+    </div> 
+</div> 
+<script>
+    var btnSubmit = $("#form-edit button[type='submit']").html();
+    
+    $(document).ready(function() {
+        const dataString = "{{item.careers}}";
+        const decodedData = dataString.replace(/&#39;/g, "'");
+        const dataArray = JSON.parse(decodedData.replace(/'/g, '"'));
+        
+        var careersArray = [];
+        dataArray.map(item => {
+            careersString = '{"career_id": "' + item.career._id + '", "semester_id": ' + item.semester._id + '}'
+            careersArray.push(careersString);
+        });
+
+        $("#form-edit select[name='career_semester']").select2();
+        $("#form-edit select[name='career_semester']").val(careersArray).trigger("change");
+    });
+
+    $("#form-edit").on("submit", function(e){
+        e.preventDefault();
+        var btn = $(this).find("button[type='submit']");
+        
+        api_loadloader(btn.find("span"), $("#preolader-circle").html(), btn, true, 100, 400);        
+
+        try{
+            var dateStartLocal = $('#form-edit input[name="date_start"]').val();
+            var dateStartObject = new Date(dateStartLocal);
+            var dateStartISO = dateStartObject.toISOString();
+        } catch(e){
+            $("#form-edit").find(".body").prepend(api_alert({text: "La fecha de entrada no tiene el formato predeterminado."}));
+            return;
+        }
+       
+        try{
+            var dateFinalLocal = $('#form-edit input[name="date_final"]').val();
+            var dateFinalObject = new Date(dateFinalLocal);
+            var dateFinalISO = dateFinalObject.toISOString();
+        } catch(e){
+            $("#form-edit").find(".body").prepend(api_alert({text: "La fecha de salida no tiene el formato predeterminado."}));
+            return;
+        }
+
+        var formData = new FormData(this);
+        formData.append("action", "edit");
+        formData.append("id", "{{item._id}}");
+        formData.set('date_start', dateStartISO);
+        formData.set('date_final', dateFinalISO);
+        
+        var response = api_sendData({url: "data/manage/events", type: "POST", formData: formData});
+        setTimeout(function(){
+            response.then(function (response) {
+                if(!response.success){
+                    api_loadloader(btn.find("span"), btnSubmit, btn, false, 400, 400);
+                    $("#form-edit").find(".body").prepend(api_alert({text: response.msg}));
+                    return;
+                }            
+                
+                $("#form-edit").find(".body").prepend(api_alert({type: "primary", title: "¡Exito!", text: response.msg}));
+                setTimeout(function(){    
+                    api_loadWidget('/manage/events')
+                }, 2000);
+                return;
+            }).catch(function (response) {
+                api_loadloader(btn.find("span"), btnSubmit, btn, false, 400, 400);
+                $("#form-edit").find(".body").prepend(api_alert({text: response.responseJSON.msg}));
+                return;
+            });
+        }, 1000);
+    }); 
+</script>

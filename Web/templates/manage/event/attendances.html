@@ -1,0 +1,245 @@
+<div class="d-flex no-wrap g-20 justify-content-space-between align-items-baseline">
+    <h1>Administración de eventos</h1>
+    <ul class="web-routes">
+        <li>Administrar</li>
+        <li>/</li>
+        <li>Eventos</li>
+        <li>/</li>
+        <li>Asistencias</li>
+    </ul>
+</div>
+<div class="mb-20px">
+    <p>Evento "{{item.name|lower}}"</p>
+</div>
+<div class="d-flex g-20">
+    <div class="col-4">
+        <div class="card-number flex-wrap">
+            <div class="number" style="font-size: 20px;">
+                {{item.date_start|date_format}}
+            </div>
+            <div class="icon">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <div class="col-12 pt-10px">
+                <p>EVENTO INICIO</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card-number flex-wrap">
+            <div class="number" style="font-size: 20px;">
+                {{item.date_final|date_format}}
+            </div>
+            <div class="icon">
+                <i class="fa-solid fa-calendar-xmark"></i>
+            </div>
+            <div class="col-12 pt-10px">
+                <p>EVENTO FINAL</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="d-flex mt-20px justify-content-flex-end">
+    <a href="javascript:;" class="btn bg-primary" id="btnExport"><i class="fa-solid fa-download mr-5px"></i> Exportar</a>
+</div>
+<div class="d-flex-column mt-20px g-20">
+    <h4 class="mb-10px">Entradas</h2>
+    <div class="table-responsive">
+        <table id="myTable" class="display" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Alumno</th>
+                    <th>Semestre</th>
+                    <th>Carrera</th>                    
+                    <th>Fecha de registro</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <h4 class="mt-20px mb-10px">Salidas</h2>
+    <div class="table-responsive">
+        <table id="myTableFinal" class="display" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Alumno</th>
+                    <th>Semestre</th>
+                    <th>Carrera</th>                    
+                    <th>Fecha de registro</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="d-flex no-wrap g-20 justify-content-space-between align-items-baseline mt-30px">
+    <h1>Alumnos sin asistencias</h1>
+</div>
+<div class="d-flex-column mt-20px g-20">
+    <h4 class="mb-10px">Entradas</h2>
+    <div class="table-responsive">
+        <table id="myTable2" class="display" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Alumno</th>
+                    <th>Semestre</th>
+                    <th>Carrera</th>                    
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <h4 class="mt-20px mb-10px">Salidas</h2>
+    <div class="table-responsive">
+        <table id="myTable2Final" class="display" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Alumno</th>
+                    <th>Semestre</th>
+                    <th>Carrera</th>                    
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        var table_data = {
+            event_id: "{{item._id}}",
+            event_entry: "1",
+            careers: "{{item.careers}}"
+        };
+
+        var table = api_dataTable(
+            "#myTable",
+            "manage_event_attendances", 
+            [
+                {data: "student.fullname"},
+                {data: "student.semester.name"},
+                {data: "student.career.name"},                
+                {data: "regdate"},
+            ],
+            table_data,
+            [[0, 'asc']]             
+        );  
+
+        var tableFinal_data = {
+            event_id: "{{item._id}}",
+            event_entry: "0",
+            careers: "{{item.careers}}"
+        };
+
+        var tableFinal = api_dataTable(
+            "#myTableFinal",
+            "manage_event_attendances", 
+            [
+                {data: "student.fullname"},
+                {data: "student.semester.name"},
+                {data: "student.career.name"},                
+                {data: "regdate"},
+            ],
+            tableFinal_data,
+            [[0, 'asc']]    
+        ); 
+
+        var table2_data = {
+            event_id: "{{item._id}}",
+            event_entry: "1",
+            careers: "{{item.careers}}"
+        };
+
+        var table2 = api_dataTable(
+            "#myTable2",
+            "manage_event_no_attendances", 
+            [
+                {data: "fullname"},
+                {data: "semester.name"},
+                {data: "career.name"},                
+            ],
+            table2_data,
+            [[0, 'asc']]            
+        );  
+
+        var table2Final_data = {
+            event_id: "{{item._id}}",
+            event_entry: "0",
+            careers: "{{item.careers}}"
+        };
+
+        var table2Final = api_dataTable(
+            "#myTable2Final",
+            "manage_event_no_attendances", 
+            [
+                {data: "fullname"},
+                {data: "semester.name"},
+                {data: "career.name"},                
+            ],
+            table2Final_data,
+            [[0, 'asc']]            
+        );  
+
+        $(document).on("click", "#btnExport", function(e){
+            Swal.fire({
+                title: 'Exportacion de asistencias',
+                icon: 'info',
+                html: `
+                    <div class="form-input">
+                        <i class="fa-solid fa-download"></i>
+                        <select id="career_export">
+                            <option value="all">Todo</option>
+                            {% for data in item.careers %}
+                                <option value="{{data}}">{{data.career.name}} de {{data.semester.name|lower}}</option>  
+                            {% endfor %}     
+                        </select>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonColor: '#33179c',
+                cancelButtonColor: '#df4759',
+                confirmButtonText: 'Exportar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append("action", "export");
+                    formData.append("event_id", "{{item._id}}");
+                    formData.append("career", $("#career_export").val());
+                    var response = api_sendData({url: "data/manage/attendances", type: "POST", formData: formData});
+                    setTimeout(function(){
+                        response.then(function (response) {
+                            if(!response.success){
+                                Swal.fire(
+                                    '¡Ocurrio un error!',
+                                    response.msg,
+                                    'error'
+                                );
+                                $("#form-add").find(".body").prepend(api_alert({text: response.msg}));
+                                return;
+                            }            
+                            
+                            Swal.fire(
+                                '¡Exito!',
+                                response.msg,
+                                'success'
+                            );
+                            window.open('/api/web/data/download/' + response.download_id, '_blank');
+                            return;
+                        }).catch(function (response) {
+                            Swal.fire(
+                                '¡Ocurrio un error!',
+                                response.responseJSON.msg,
+                                'error'
+                            );
+                            return;
+                        });
+                    }, 1000);
+                }
+            });
+        });
+    });
+</script>

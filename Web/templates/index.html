@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TouchTrack</title>
+    <link rel="stylesheet" href="/assets/vendor/animate.min.css"></style>
+    <link href="/assets/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/assets/css/panel.css"></style>
+    <link rel="stylesheet" href="/assets/vendor/fontawesome-free-6.4.0-web/css/all.min.css"></style>
+    <link rel="stylesheet" href="/assets/css/sizes.css"></style>
+    <link rel="stylesheet" href="/assets/css/datatables.css"></style>
+    
+</head>
+<body>
+    <div id="preolader-circle" style="display: none;">
+        <div class="preloader-circle">
+            <span class="loader-circle"></span>
+        </div>
+    </div>    
+    <div id="preolader-content" style="display: none;">
+        <div class="preloader">
+            <div class="content">
+                <div class="title"></div>
+                <div class="path"></div>
+            </div> 
+            <div class="content">
+                <div class="info"></div>
+                <div class="info"></div>
+                <div class="info"></div>
+                <div class="table"></div>
+            </div>        
+        </div>
+    </div>
+    <nav class="navbar">
+        <div class="content">
+            <i class="btn fa-solid fa-bars active"></i>            
+            <a class="name" href="/dashboard"><h1>TouchTrack</h1> <span>PANEL</span></a>
+            <div class="user">
+                <div class="info">
+                    <p>{{user_info.username|capitalize}}</p>
+                    <i class="fa-regular fa-user"></i>
+                </div>
+                <div class="dropdown animate__animated animate__faster">
+                    <ul>
+                        <li><a href=""><i class="fa-solid fa-circle-user"></i> Cuenta</a></li>
+                        <li class="separate"></li>
+                        <li><a href="/auth/logout" type="location"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesion</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav> 
+    <nav class="navbar-menu active">
+        <div class="content">
+            <ul class="menu">
+                <li class="name"><span>Navegación</span></li>
+                <li><a href="/dashboard"><i class="fa-solid fa-home"></i> <span>Inicio</span></a></li>
+                <li class="name"><span>Administración</span></li>
+                <li><a href="/manage/students"><i class="fa-solid fa-graduation-cap"></i> <span>Estudiantes</span></a></li>
+                <li><a href="/manage/groups"><i class="fa-solid fa-people-group"></i> <span>Grupos</span></a></li>
+                <li><a href="/manage/careers"><i class="fa-solid fa-school"></i> <span>Carreras</span></a></li>
+                <li><a href="/manage/users"><i class="fa-solid fa-users"></i> <span>Usuarios</span></a></li>                
+                <li><a href="/manage/events"><i class="fa-solid fa-calendar-days"></i> <span>Eventos</span></a></li>
+                <li><a href="/manage/attendances"><i class="fa-solid fa-clipboard-user"></i> <span>Asistencias individuales</span></a></li>
+            </ul>            
+        </div>
+    </nav>
+    <section class="main-content active" id="content">
+        
+    </section>
+    <p class="footer">© 2023 TouchTrack. Reservados todos los derechos.</p>
+    <script src="/assets/js/jquery-3.7.0.min.js"></script>
+    <script>
+        var logged = 1;
+    </script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/datatables.min.js"></script>
+    <script type="text/javascript" src="/assets/js/tsparticles.bundle.min.js"></script>
+    <script src="/assets/js/select2.min.js"></script>
+    <script src="/assets/js/sweetalert2@11.js"></script>
+
+    <script>
+        var screenWidth = $(window).width();
+
+        $(document).ready(function() {           
+            $(document).on("click", ".navbar .content .btn", function(){
+                $(this).toggleClass("active");
+                $(".navbar-menu").toggleClass("active");
+                $(".main-content").toggleClass("active");
+                $(".navbar-menu .content ul li a span").fadeToggle(50);
+            });
+
+            $(document).on("click", ".navbar .content .user", function(event) {
+                var $dropdown = $(this).find(".dropdown");
+                if ($dropdown.hasClass("active")) {
+                    api_closeDropdown($dropdown);
+                } else {
+                    api_openDropdown($dropdown);
+                }
+                event.stopPropagation();
+            });
+
+            $(document).on("click", function(event) {
+                var $dropdown = $(".navbar .content .user .dropdown");
+                if ($dropdown.hasClass("active") && !$(event.target).closest(".navbar .content .user .dropdown").length) {
+                    api_closeDropdown($dropdown);
+                }
+                event.stopPropagation();
+            });
+
+            api_displayDeviceInfo();
+        });        
+
+        function api_openDropdown($dropdown) {
+            $dropdown.css("display", "block");
+            $dropdown.removeClass("animate__fadeOutRight");
+            $dropdown.addClass("active animate__fadeInRight");
+        }
+
+        function api_closeDropdown($dropdown) {
+            $dropdown.css("display", "block");
+            $dropdown.removeClass("animate__fadeInRight");
+            $dropdown.addClass("animate__fadeOutRight");
+            $dropdown.removeClass("active");
+        }
+
+        function api_displayDeviceInfo() {
+            if (screenWidth > 1023) {
+                $(".navbar .content .btn").toggleClass("active");
+                $(".navbar-menu").toggleClass("active");
+                $(".main-content").toggleClass("active");
+                $(".navbar-menu .content ul li a span").fadeToggle(50);
+            }
+        }
+    </script>
+</body>
+</html>

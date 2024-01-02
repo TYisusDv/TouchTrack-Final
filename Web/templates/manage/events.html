@@ -1,0 +1,58 @@
+<div class="d-flex no-wrap g-20 justify-content-space-between align-items-baseline">
+    <h1 class="mb-20px">Administración de eventos</h1>
+    <ul class="web-routes">
+        <li>Administrar</li>
+        <li>/</li>
+        <li>Eventos</li>
+    </ul>
+</div>
+<div class="d-flex g-20">
+    <div class="col-4">
+        <div class="card-number flex-wrap">
+            <div class="number">
+                {{total}}
+            </div>
+            <div class="icon">
+                <i class="fa-solid fa-calendar-days"></i>
+            </div>
+            <div class="col-12 pt-10px">
+                <p>TOTAL</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="d-flex mt-20px justify-content-flex-end">
+    <a href="/manage/event/add" class="btn bg-primary"><i class="fa-solid fa-plus mr-5px"></i> Agregar</a>
+</div>
+<div class="d-flex mt-10px">
+    <div class="table-responsive">
+        <table id="myTable" class="display" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Acciones</th>
+                    <th>Evento</th>
+                    <th>Fecha inicio</th>
+                    <th>Fecha final</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        var table = api_dataTable(
+            "#myTable",
+            "manage_events", 
+            [
+                {data: "actions"},
+                {data: "name"},
+                {data: "date_start"},
+                {data: "date_final"},
+            ],
+            {},
+            [[2, 'desc']]
+        );        
+    });
+</script>

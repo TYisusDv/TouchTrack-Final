@@ -1,0 +1,128 @@
+<div class="d-flex no-wrap g-20 justify-content-space-between align-items-baseline">
+    <h1 class="mb-20px">Administración de estudiantes</h1>
+    <ul class="web-routes">
+        <li>Administrar</li>
+        <li>/</li>
+        <li>Estudiantes</li>
+    </ul>
+</div>
+<div class="d-flex g-20">
+    <div class="col-4">
+        <div class="card-number flex-wrap">
+            <div class="number">
+                {{total}}
+            </div>
+            <div class="icon">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div class="col-12 pt-10px">
+                <p>TOTAL</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="d-flex mt-20px justify-content-flex-end align-items-flex-end g-10" id="student_filters">
+    <div class="form-input">
+        <i class="fa-solid fa-fingerprint"></i>
+        <select name="show">
+            <option value="all">Mostrar todo</option>
+            <option value="no_fingerprints">Sin huellas</option>       
+        </select>
+    </div>
+    <div class="form-input">
+        <i class="fa-solid fa-school"></i>
+        <select name="career_id">
+            <option value="all">Todas las carreras</option>
+            {% for career in careers %}
+            <option value="{{career._id}}">{{career.name}}</option>
+            {% endfor %}
+        </select>
+    </div>   
+    <div class="form-input">
+        <i class="fa-solid fa-building-columns"></i>
+        <select name="semester_id">
+            <option value="all">Todos los semestres...</option>
+            {% for semester in semesters %}
+            <option value="{{semester._id}}">{{semester.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-input">
+        <i class="fa-solid fa-people-group"></i>
+        <select name="group_id">
+            <option value="all">Todos los grupos...</option>
+            {% for group in groups %}
+            <option value="{{group._id}}">{{group.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <a href="/manage/student/add" class="btn bg-primary" style="height: 20px;"><i class="fa-solid fa-plus mr-5px"></i> Agregar</a>
+</div>
+<div class="d-flex mt-10px">
+    <div class="table-responsive">
+        <table id="myTable" class="display" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Acciones</th>
+                    <th>Numero de control</th>
+                    <th>Nombre completo</th>
+                    <th>Carrera</th>
+                    <th>Grupo</th>
+                    <th>Semestre</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+
+    $(document).ready(function() {
+        initializeDataTable();
+
+        $("#student_filters select[name='career_id']").on("change", function() {         
+            initializeDataTable();
+        });
+
+        $("#student_filters select[name='semester_id']").on("change", function() {         
+            initializeDataTable();
+        });
+        
+        $("#student_filters select[name='group_id']").on("change", function() {         
+            initializeDataTable();
+        });
+
+        $("#student_filters select[name='show']").on("change", function() {         
+            initializeDataTable();
+        });
+    });
+
+    function initializeDataTable() {
+        if ($.fn.DataTable.isDataTable("#myTable")) {
+            table.destroy();
+        }
+
+        var table_data = {
+            career_id: $("#student_filters select[name='career_id']").val(),
+            semester_id: $("#student_filters select[name='semester_id']").val(),
+            group_id: $("#student_filters select[name='group_id']").val(),
+            show: $("#student_filters select[name='show']").val(),
+        };   
+
+        table = api_dataTable(
+            "#myTable",
+            "manage_students",
+            [
+                {data: "actions"},
+                {data: "_id"},
+                {data: "fullname"},
+                {data: "career.name"},
+                {data: "group.name"},
+                {data: "semester.name"},
+            ],
+            table_data,
+            [[2, 'asc']]
+        );
+    }
+</script>

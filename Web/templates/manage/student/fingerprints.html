@@ -1,0 +1,110 @@
+<div class="d-flex no-wrap g-20 justify-content-space-between align-items-baseline">
+    <h1 class="mb-20px">Administración de huellas</h1>
+    <ul class="web-routes">
+        <li>Administrar</li>
+        <li>/</li>
+        <li>Estudiante</li>
+        <li>/</li>
+        <li>Huellas</li>
+    </ul>
+</div>
+<div class="d-flex g-20">
+    <div class="col-4">
+        <div class="card-number flex-wrap">
+            <div class="number">
+                {{total}}
+            </div>
+            <div class="icon">
+                <i class="fa-solid fa-fingerprint"></i>
+            </div>
+            <div class="col-12 pt-10px">
+                <p>TOTAL</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="d-flex mt-10px">
+    <div class="table-responsive">
+        <table id="myTable" class="display" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Acciones</th>
+                    <th>ID</th>
+                    <th>Fecha de registro</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        var table_data = {
+            student_id: "{{item._id}}",
+        };
+
+        var table = api_dataTable(
+            "#myTable",
+            "manage_student_fingerprints", 
+            [
+                {data: "actions"},
+                {data: "_id"},
+                {data: "regdate"},
+            ],
+            table_data,
+            [[2, 'desc']]
+        );
+        
+        $(document).on("click", ".delete-fingerprint", function (e) {
+            var fingerprint_id = $(this).data("fingerprint-id");
+            Swal.fire({
+                title: '¿Estas seguro/a?',
+                text: "¡No podrás revertir esto!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#df4759',
+                cancelButtonColor: '#33179c',
+                confirmButtonText: '¡Sí, bórralo!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append("action", "delete_fingerprint");
+                    formData.append("id", "{{item._id}}");
+                    formData.append("fingerprint_id", fingerprint_id);
+                    var response = api_sendData({url: "data/manage/students", type: "POST", formData: formData});
+                    setTimeout(function(){
+                        response.then(function (response) {
+                            if(!response.success){
+                                Swal.fire(
+                                    '¡Ocurrio un error!',
+                                    response.msg,
+                                    'error'
+                                );
+                                $("#form-add").find(".body").prepend(api_alert({text: response.msg}));
+                                return;
+                            }            
+                            
+                            Swal.fire(
+                                '¡Eliminado!',
+                                response.msg,
+                                'success'
+                            );
+                            table.ajax.reload();
+                            return;
+                        }).catch(function (response) {
+                            Swal.fire(
+                                '¡Ocurrio un error!',
+                                response.responseJSON.msg,
+                                'error'
+                            );
+                            return;
+                        });
+                    }, 1000);
+                    
+                }
+            })
+        });
+    });
+</script>
